@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context.xsd
+	http://www.springframework.org/schema/aop
+	http://www.springframework.org/schema/aop/spring-aop.xsd
+	http://www.springframework.org/schema/tx 
+	http://www.springframework.org/schema/tx/spring-tx.xsd
+	http://www.springframework.org/schema/data/jpa 
+	http://www.springframework.org/schema/data/jpa/spring-jpa.xsd">
+	
+	<!-- 开启IOC注解 -->
+	<context:component-scan base-package="com.hpe"/>
+
+	<!-- 链接池 -->
+	<bean id="poolConfig" class="redis.clients.jedis.JedisPoolConfig">
+		<!-- 最大空闲数 -->
+		<property name="maxIdle" value="10"/>
+		<!-- 超时时间 -->
+		<property name="maxWaitMillis" value="3000"/>
+		<!-- 支持测试 -->
+		<property name="testOnBorrow" value="true"/>
+	</bean>
+	
+	<!-- 创建工厂 -->
+	<bean id="connectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory">
+		<!-- 链接服务器 -->
+		<property name="hostName" value="localhost"/>
+		<!-- 端口号 -->
+		<property name="port" value="6379"/>
+		<!-- 链接池 -->
+		<property name="poolConfig" ref="poolConfig"/>
+		<!-- 使用的数据库 -->
+		<property name="database" value="0"/>
+	</bean>
+	
+	<!-- redis模板对象 -->
+	<bean id="redisTemplate" class="org.springframework.data.redis.core.RedisTemplate"> 
+		<!-- 引入工厂 -->
+		<property name="connectionFactory" ref="connectionFactory"/>
+		<!-- 将key变成字符串 -->
+		<property name="keySerializer">
+			<bean class="org.springframework.data.redis.serializer.StringRedisSerializer"></bean>
+		</property>
+		<property name="valueSerializer">
+			<bean class="org.springframework.data.redis.serializer.StringRedisSerializer"></bean>
+		</property>
+	</bean>
+</beans>
